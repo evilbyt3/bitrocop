@@ -1,13 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-
-// Connect to Binanance API
-const Binance = require('node-binance-api');
-const { BinKey, BSecret } = require('../config.json');
-const bClient = new Binance().options({
-  APIKEY: BinKey,
-  APISECRET: BSecret
-});
+const Utils = require('../utils/helpers.js')
 
 
 // Setup table
@@ -33,9 +26,12 @@ function genIndex(factor){
   return tIdx
 }
 
-async function buildField(order) {
-  let field = []
-  field.push(order.symbol)
+// Build a discord embed's fields for an order
+// returns an array in the following format
+// [ 'BNBBUSD', 'LIM🔻', '0.35', '$443.60', '$450.00', '1.44%' ]
+async function buildFields(order) {
+  let fields = []
+  fields.push(order.symbol)
 
   type = order.type.slice(0, -2)
   if (order.side === "SELL") {
@@ -43,44 +39,22 @@ async function buildField(order) {
   } else {
     type += "🔺"
   }
-  field.push(type)
-  field.push(parseFloat(order.origQty).toFixed(2))
+  fields.push(type)
+  fields.push(parseFloat(order.origQty).toFixed(2))
 
-  const lastBuy = await getLastBuy(order.symbol)
-  field.push(`$${lastBuy}`)
+  const lastBuy = await Utils.getLastBuy(order.symbol)
+  fields.push(`$${lastBuy}`)
 
   const sell = parseFloat(order.price).toFixed(2)
-  field.push(`$${sell}`)
+  fields.push(`$${sell}`)
 
   // calculate profit (in % and in eur)
-  field.push(`${calcMarkup(lastBuy, sell)}%`)
+  fields.push(`${await Utils.calcMarkup(lastBuy, sell)}%`)
 
-  return field
+  console.log(fields)
+  return fields
 }
-
-
-// retrieve last buy on the specified symbol
-async function getLastBuy(symbol) {
-  const resp  = await bClient.trades(symbol)
-  let lastBuy = resp.at(-1).price
-  return parseFloat(lastBuy).toFixed(2)
-}
-
-
-// gross profit         = profit / sell price * 100
-// gross margin %       = 100 * (sell price - buy price) / price cost
-// markup %             = 100 * (sell price - buy price) / buy price
-// more here: https://www.bluecart.com/blog/markup-vs-margin
-function calcMarkup(buy, sell) {
-  const markup = 100 * (sell - buy) / buy 
-  return markup.toFixed(2)
-}
-
 // -------------------------------------------------------------
-
-
-
-
 
 
 module.exports = {
@@ -90,23 +64,23 @@ module.exports = {
   async execute(interaction) {
 
     // Retrieve open orders
-    const orders = await bClient.openOrders();
+    const orders = await Utils.bClient.openOrders();
     orderCount = orders.length
 
     // Build fields (rows)
     for (let order of orders) {
-      const field = await buildField(order)
-      table.addRow(field, {override: 4})
+      const orderFields = await buildFields(order)
+      table.addRow(orderFields, {override: 4})
     }
 
     // Build embed & send it
-    const fields = table.field(true)
+    const rows = table.field(true)
     const exampleEmbed = {
       title: 'Order List',
       url: 'https://www.binance.com/',
       description: 'Audit of open orders',
       color: 0x4df0af,
-      fields: fields,
+      fields: rows,
       // timestamp: new Date(),
       footer: {
         // TODO: add total profit as well
