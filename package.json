@@ -1,0 +1,21 @@
+{
+  "name": "bitrocop",
+  "version": "1.0.0",
+  "description": "A discord bot for trading",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "vlaghe",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^0.11.0",
+    "@discordjs/rest": "^0.2.0-canary.0",
+    "cli-table": "^0.3.11",
+    "discord-api-types": "^0.26.1",
+    "discord.js": "^13.6.0",
+    "dotenv": "^14.2.0",
+    "embed-table": "^2.3.0",
+    "node-binance-api": "^0.13.1"
+  }
+}
