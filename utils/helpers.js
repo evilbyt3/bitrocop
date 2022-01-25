@@ -14,6 +14,14 @@ module.exports = {
     return parseFloat(lastBuy).toFixed(2)
   },
 
+  genIndex(factor, size){
+    const tIdx = []
+    for (let i = 0; i < size; i++) {
+      let sum = i * factor
+      tIdx.push(sum)
+    }
+    return tIdx
+  },
 
   // gross profit         = profit / sell price * 100
   // gross margin %       = 100 * (sell price - buy price) / price cost
@@ -21,6 +29,7 @@ module.exports = {
   // more here: https://www.bluecart.com/blog/markup-vs-margin
   calcMarkup: async function(buy, sell) {
     const markup = 100 * (sell - buy) / buy 
+    if (buy < sell) return markup.toFixed(2) * -1
     return markup.toFixed(2)
   },
 

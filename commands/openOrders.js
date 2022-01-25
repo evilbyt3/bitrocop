@@ -7,8 +7,8 @@ const Utils = require('../utils/helpers.js')
 const { Table } = require('embed-table');
 const table = new Table({
   titles: ['Coin', 'Type', 'Amount', 'Entry', 'Exit', 'Profit'],
-  titleIndexes: genIndex(20),
-  rowIndexes: genIndex(11),
+  titleIndexes: Utils.genIndex(20, 7), //20
+  rowIndexes: Utils.genIndex(11, 7),   //11
   start: '`',
   end: '`',
   padEnd: 10
@@ -16,15 +16,6 @@ const table = new Table({
 
 
 // ------ FUNCTIONS ------
-function genIndex(factor){
-  const tIdx = []
-  for (let i = 0; i < 6; i++) {
-    let sum = i * factor
-    tIdx.push(sum)
-  }
-
-  return tIdx
-}
 
 // Build a discord embed's fields for an order
 // returns an array in the following format
@@ -49,9 +40,8 @@ async function buildFields(order) {
   fields.push(`$${sell}`)
 
   // calculate profit (in % and in eur)
-  fields.push(`${await Utils.calcMarkup(lastBuy, sell)}%`)
+  fields.push(`${ await Utils.calcMarkup(lastBuy, sell) }%`)
 
-  console.log(fields)
   return fields
 }
 // -------------------------------------------------------------
@@ -75,19 +65,19 @@ module.exports = {
 
     // Build embed & send it
     const rows = table.field(true)
-    const exampleEmbed = {
+    const embed = {
       title: 'Order List',
       url: 'https://www.binance.com/',
       description: 'Audit of open orders',
       color: 0x4df0af,
       fields: rows,
-      // timestamp: new Date(),
+      timestamp: new Date(),
       footer: {
         // TODO: add total profit as well
         text: `Total: ${orderCount}`,
       }
     }
 
-    await interaction.reply({ embeds: [exampleEmbed] });
+    await interaction.reply({ embeds: [embed] });
   },
 };
