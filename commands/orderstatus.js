@@ -61,7 +61,7 @@ module.exports = {
     console.log(rows)
     const embed = {
       title: '🪙 Coin Status',
-      description: `Avg %: \`${calcAvg(percentages)}%\``,
+      description: `Avg %: \`${calcAvg(nrArr)}%\``,
       color: 0x4df0af,
       fields: rows,
       timestamp: new Date()
